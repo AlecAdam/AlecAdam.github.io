@@ -1,0 +1,148 @@
+---
+title: "Cereal Final Report"
+author: "Created by: Alec Adam"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
+    code_folding: hide
+
+---
+
+
+# Background
+Cereal is a staple for most Americans diet due to the fact its cheap and easy to make. The taste is also a big benefit, but how are the nutritional values. In this report I analysed  5 different brands of cereal and compared the nutritional values to see if there is a "healthy cereal". This data set was found on kaggle and consisted of over 70 different brands of cereal. I decided to change the data and picked my five favorite cereal brands for the analysis.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(GGally)
+```
+The required packages
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(GGally)
+library(fmsb)
+```
+
+# The data set used
+Here is how I loaded the data set and selected for Apple jacks, Cheerios, Cinnamon Toast Crunch, Coca puffs, and froot loops.
+```{r}
+cereal <- read_csv("../../Desktop/Data_Course_Adam/cereal.csv")
+
+glimpse(cereal)
+
+selected_cereals <- c("Apple Jacks", "Cheerios", "Cinnamon Toast Crunch", "Cocoa Puffs", "Froot Loops")
+cereal_subset <- cereal %>% 
+  filter(name %in% selected_cereals)
+
+head(cereal_subset)
+```
+# Graphs
+The graphs below show the 5 cereals selected and the nutrient values in them.
+```{r}
+ggplot(cereal_subset, aes(x = name, y = calories, fill = name)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Calories per Serving", x = "Cereal", y = "Calories") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(cereal_subset, aes(x = name, y = sugars, fill = name)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Sugar Content per Serving", x = "Cereal", y = "Sugars (g)") +
+  theme_minimal()
+```
+
+```{r}
+nutrient_cols <- c("protein", "fat", "fiber", "carbo", "sugars", "potass", "vitamins")
+
+cereal_long <- cereal_subset %>%
+  pivot_longer(cols = all_of(nutrient_cols), names_to = "nutrient", values_to = "value")
+
+ggplot(cereal_long, aes(x = name, y = value, fill = name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~nutrient, scales = "free_y") +
+  labs(title = "Nutrient Comparison", x = "Cereal", y = "Amount") +
+  theme_minimal()
+```
+
+# Correlation betwen nutrients
+```{r}
+
+# Select numeric columns only
+nutrients_numeric <- cereal_subset %>%
+  select(calories, protein, fat, fiber, carbo, sugars, potass, vitamins)
+
+# Plot correlation matrix
+ggpairs(nutrients_numeric) +
+  theme_minimal() +
+  ggtitle("Pairwise Correlations Between Nutrients")
+```
+
+
+# Radar chart
+```{r}
+library(fmsb)
+
+
+cereal_norm <- cereal_subset %>%
+  select(name, protein, fat, fiber, carbo, sugars, potass, vitamins) %>%
+  column_to_rownames("name") %>%
+  mutate_all(~ scales::rescale(., to = c(0, 100)))
+
+
+radar_data <- rbind(rep(100, 7), rep(0, 7), cereal_norm)
+
+
+colors_border <- rainbow(nrow(cereal_norm))
+
+radarchart(radar_data,
+           pcol = colors_border, plwd = 2, plty = 1,
+           title = "Nutritional Profile Comparison",
+           cglcol = "grey", cglty = 1, axislabcol = "black")
+
+legend("topright", legend = rownames(cereal_norm), col = colors_border, lty = 1)
+```
+
+
+
+
+
+# Model to predict the amount of calories
+A model was made to predict the amount of calories if you have the sugar and fat. 
+```{r}
+model <- lm(calories ~ sugars + fat, data = cereal_subset)
+summary(model)
+```
+
+
+# Using the model
+After testing the model it works good enough for me to be happy with it.
+```{r}
+new_data <- data.frame(sugars = c(10, 6), fat = c(1, 2))
+predicted_calories <- predict(model, newdata = new_data)
+new_data$predicted_calories <- predicted_calories
+new_data
+```
+
+
+# Model for Health score
+To find the healthiest cereal I made this model to model which takes account the nutrient contents to create a health score.
+```{r}
+cereal_subset <- cereal_subset %>%
+  mutate(health_score = fiber*2 + protein*1.5 - sugars - fat)
+
+cereal_subset %>%
+  select(name, health_score) %>%
+  arrange(desc(health_score))
+```
+
+# Discussion
+After looking at the data and creating a model it can be concluded Cheerios is the healthiest of the options. This is because it has the lowest amount of sugar and the most of fiber and protein. To answer the question if there is there a healthy cereal I would say no. There are healthier variations but if you are worried about the nutrients its better to go with other breakfast options like sugar free Greek yogurt and fruit. If you compare the taste in my opinion cheerios taste the worst and Cocoa puffs taste the best which is ironic because the Cocoa puffs ranked the lowest on health scale.
