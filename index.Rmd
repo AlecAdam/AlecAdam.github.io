@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-## [ABOUT ME](./about-me) | [Resume](../../Documents/Alec Adam Resume 2025 (1) teacher updated.docx) | [BIOL-3100-Final-Project](./fp)##
+## [ABOUT ME](./about-me) | [Resume](../../Documents/Alec_Adam_Resume_2025_teacher_updated.docx) | [BIOL-3100-Final-Project](./fp)##
 
 # **Alec Adam - Bioinformatician** #
 
