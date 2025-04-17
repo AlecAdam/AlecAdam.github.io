@@ -49,14 +49,16 @@ The graphs below show the 5 cereals selected and the nutrient values in them.
 ggplot(cereal_subset, aes(x = name, y = calories, fill = name)) +
   geom_bar(stat = "identity") +
   labs(title = "Calories per Serving", x = "Cereal", y = "Calories") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 ```{r}
 ggplot(cereal_subset, aes(x = name, y = sugars, fill = name)) +
   geom_bar(stat = "identity") +
   labs(title = "Sugar Content per Serving", x = "Cereal", y = "Sugars (g)") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 ```{r}
@@ -69,7 +71,8 @@ ggplot(cereal_long, aes(x = name, y = value, fill = name)) +
   geom_bar(stat = "identity", position = "dodge") +
   facet_wrap(~nutrient, scales = "free_y") +
   labs(title = "Nutrient Comparison", x = "Cereal", y = "Amount") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 # Correlation betwen nutrients
