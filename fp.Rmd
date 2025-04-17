@@ -1,6 +1,5 @@
 ---
 title: "Cereal Final Report"
-author: "Created by: Alec Adam"
 output:
   html_document:
     theme: cerulean
